@@ -126,7 +126,7 @@ dependencies {
         implementation jscFlavor
     }
 
-    def version = "0.31.0"
+    def version = "0.32.0"
     implementation("com.tomtom.sdk.maps:map-display:$version")
 }
 
