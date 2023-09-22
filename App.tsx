@@ -20,8 +20,7 @@ function App(): JSX.Element {
 
   return (
     <SafeAreaView style={backgroundStyle}>
-      <Text>Some text</Text>
-      <MapView />
+      <MapView style={{flex: 1}} />
     </SafeAreaView>
   );
 }
