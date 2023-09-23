@@ -1,27 +1,67 @@
 package com.navigationreactnative
 
 import android.os.Bundle
+import android.util.Log
+import android.widget.LinearLayout
 import com.facebook.react.bridge.LifecycleEventListener
-import com.facebook.react.bridge.ReactApplicationContext
-import com.facebook.react.uimanager.SimpleViewManager
-import com.facebook.react.uimanager.ThemedReactContext
+import com.facebook.react.bridge.ReactContext
+import com.facebook.react.bridge.ReadableMap
+import com.tomtom.sdk.location.GeoPoint
 import com.tomtom.sdk.map.display.MapOptions
+import com.tomtom.sdk.map.display.TomTomMap
+import com.tomtom.sdk.map.display.camera.CameraOptions
 import com.tomtom.sdk.map.display.ui.MapView
 
-class ReactMapView(private val reactContext: ReactApplicationContext) :
-    SimpleViewManager<MapView>(), LifecycleEventListener {
+class ReactMapView constructor(private val reactContext: ReactContext) :
+    LinearLayout(reactContext), LifecycleEventListener {
 
+    private var position: GeoPoint? = null
+    private var zoom: Double? = null
     private var mapViewResumed: Boolean = false
     private var disposed: Boolean = false
+    private var shouldUpdateCamera = false
     private lateinit var mapView: MapView
 
-    override fun getName() = REACT_CLASS
+    fun setCenter(center: ReadableMap?) {
+        if (center == null) {
+            position = null
+            return
+        }
 
-    override fun createViewInstance(context: ThemedReactContext): MapView {
+        val latitude = center?.getDouble("latitude") ?: return
+        val longitude = center?.getDouble("longitude") ?: return
+        position = GeoPoint(latitude, longitude)
+
+        shouldUpdateCamera = true
+    }
+
+    fun setZoom(zoom: Int?) {
+        this.zoom = zoom?.toDouble()
+        shouldUpdateCamera = true
+    }
+
+    fun updateCamera(map: TomTomMap) {
+        Log.d("ReactMapView", "updateCamera, position: $position")
+
+        val cameraOptions = CameraOptions(position = position, zoom = zoom)
+        map.moveCamera(cameraOptions)
+    }
+
+    fun onAfterUpdateTransaction(superMethod: () -> Unit) {
+        mapView.getMapAsync { map ->
+            superMethod()
+            if (shouldUpdateCamera) {
+                updateCamera(map)
+                shouldUpdateCamera = false
+            }
+        }
+    }
+
+    fun onCreateViewInstance() {
         mapView = MapView(reactContext, MapOptions(mapKey = BuildConfig.TOMTOM_API_KEY))
         mapView.onCreate(Bundle())
+        addView(mapView)
         reactContext.addLifecycleEventListener(this)
-        return mapView
     }
 
     override fun onHostResume() {
@@ -52,9 +92,5 @@ class ReactMapView(private val reactContext: ReactApplicationContext) :
         mapView.onDestroy()
         mapViewResumed = false
         disposed = true
-    }
-
-    companion object {
-        const val REACT_CLASS = "RCTMapView"
     }
 }

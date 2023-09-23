@@ -9,6 +9,6 @@ class NativeComponentsReactPackage : ReactPackage {
         return mutableListOf()
     }
 
-    override fun createViewManagers(reactContext: ReactApplicationContext) = listOf(ReactMapView(reactContext))
+    override fun createViewManagers(reactContext: ReactApplicationContext) = listOf(ReactMapManager(reactContext))
 
 }

@@ -6,7 +6,7 @@
  */
 
 import React from 'react';
-import {SafeAreaView, Text, useColorScheme} from 'react-native';
+import {SafeAreaView, useColorScheme} from 'react-native';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import MapView from './MapView';
 
@@ -20,7 +20,11 @@ function App(): JSX.Element {
 
   return (
     <SafeAreaView style={backgroundStyle}>
-      <MapView style={{flex: 1}} />
+      <MapView
+        style={{flex: 1}}
+        center={{latitude: 37.7749, longitude: -122.4194}}
+        zoom={6}
+      />
     </SafeAreaView>
   );
 }
