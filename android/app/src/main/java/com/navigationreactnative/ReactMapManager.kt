@@ -29,6 +29,8 @@ class ReactMapManager(private val callerContext: ReactApplicationContext) :
     @ReactProp(name = "center")
     @Suppress("UNUSED")
     fun setCenterCoordinates(view: ReactMapView, center: ReadableMap?) {
+        Log.d("ReactMapManager","position: $center")
+
         view.setCenter(center)
     }
 

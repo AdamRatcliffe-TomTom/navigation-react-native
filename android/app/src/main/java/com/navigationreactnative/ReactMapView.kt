@@ -40,24 +40,28 @@ class ReactMapView constructor(private val reactContext: ReactContext) :
         shouldUpdateCamera = true
     }
 
-    fun updateCamera(map: TomTomMap) {
-        Log.d("ReactMapView", "updateCamera, position: $position")
+    fun updateCameraIfNeeded(map: TomTomMap) {
+        if (shouldUpdateCamera) {
 
-        val cameraOptions = CameraOptions(position = position, zoom = zoom)
-        map.moveCamera(cameraOptions)
+            Log.d("ReactMapView", "updateCamera, position: $position")
+
+            val cameraOptions = CameraOptions(position = position, zoom = zoom)
+            map.moveCamera(cameraOptions)
+
+            shouldUpdateCamera = false
+        }
     }
 
     fun onAfterUpdateTransaction(superMethod: () -> Unit) {
         mapView.getMapAsync { map ->
             superMethod()
-            if (shouldUpdateCamera) {
-                updateCamera(map)
-                shouldUpdateCamera = false
-            }
+            updateCameraIfNeeded(map)
         }
     }
 
     fun onCreateViewInstance() {
+        Log.d("ReactMapView", "onCreateViewInstance, position: $position")
+
         mapView = MapView(reactContext, MapOptions(mapKey = BuildConfig.TOMTOM_API_KEY))
         mapView.onCreate(Bundle())
         addView(mapView)
